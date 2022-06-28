@@ -21,7 +21,8 @@ winget install --id Microsoft.VisualStudioCode
 winget install --id Git.Git
 
 : force sync path
-: https://github.com/microsoft/winget-cli/iss
+: https://github.com/microsoft/winget-cli/issues/222
+cd %WORKSPACE_PATH%
 curl https://raw.githubusercontent.com/chocolatey-archive/chocolatey/master/src/redirects/RefreshEnv.cmd > refresh.cmd
 call refresh.cmd
 rm refresh.cmd
@@ -32,7 +33,6 @@ volta install node@16
 echo %ESC%[92mDone!
 
 : git clone
-cd %WORKSPACE_PATH%
 git clone https://github.com/kitsunerd/discordbot.git
 cd %WORKSPACE_PATH%\discordbot
 
