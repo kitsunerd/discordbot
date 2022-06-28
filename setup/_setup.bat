@@ -8,7 +8,6 @@ timeout 5
 
 : create directories
 echo %ESC%[96mCreating Directories...
-set WORKSPACE_PATH = %SystemDrive%\workspace_bot
 mkdir %SystemDrive%\workspace_bot
 echo %ESC%[92mDone!
 
@@ -22,10 +21,10 @@ winget install --id Git.Git
 
 : force sync path
 : https://github.com/microsoft/winget-cli/issues/222
-cd %WORKSPACE_PATH%
+cd %SystemDrive%\workspace_bot
 curl https://raw.githubusercontent.com/chocolatey-archive/chocolatey/master/src/redirects/RefreshEnv.cmd > refresh.cmd
 call refresh.cmd
-rm refresh.cmd
+del refresh.cmd
 
 : nodejs install
 volta install node@16
@@ -33,7 +32,8 @@ volta install node@16
 echo %ESC%[92mDone!
 
 : git clone
+echo %ESC%[97mgit clone
 git clone https://github.com/kitsunerd/discordbot.git
-cd %WORKSPACE_PATH%\discordbot
+cd %SystemDrive%\workspace_bot\discordbot
 
 pause
