@@ -20,7 +20,7 @@ winget install --id Volta.Volta
 winget install --id Microsoft.VisualStudioCode
 winget install --id Git.Git
 
-: chocolateyのcmdファイルを直接使用し、pathを更新する
+: force sync path
 : https://github.com/microsoft/winget-cli/iss
 curl https://raw.githubusercontent.com/chocolatey-archive/chocolatey/master/src/redirects/RefreshEnv.cmd > refresh.cmd
 call refresh.cmd
