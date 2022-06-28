@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "ms-ceintl.vscode-language-pack-ja",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens",
+    "ms-vsliveshare.vsliveshare",
+    "esbenp.prettier-vscode",
+    "rvest.vs-code-prettier-eslint"
+  ]
+}
