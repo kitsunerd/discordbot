@@ -113,10 +113,12 @@ export const startReminder = (
     setTimeout(() => {
       resolve(remindId);
     }, msec);
-  }).then((remindId) => {
-    sendChannel.send(`<@!${input.userId}> ${input.message}`);
-    removeReminds(input.userId, remindId);
-  });
+  })
+    .then((remindId) => {
+      sendChannel.send(`<@!${input.userId}> ${input.message}`);
+      removeReminds(input.userId, remindId);
+    })
+    .catch();
 };
 
 export const add: SubCommand = {
