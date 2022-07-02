@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import { Client, Intents, ApplicationCommandDataResolvable } from "discord.js";
 import * as commands from "./commands";
+import { fetchReminderRepository } from "./repository/Reminder/get";
+import { importReminder } from "./commands/remind";
 
 dotenv.config();
 
@@ -15,6 +17,8 @@ const client = new Client({
 });
 
 client.once("ready", async () => {
+  const remindData = fetchReminderRepository.fetch();
+  importReminder(remindData, client.channels);
   // await client.application?.commands.set([], "615540231159939092");
   const data: ApplicationCommandDataResolvable[] = Object.values(commands).map(
     (command) => ({
@@ -23,7 +27,6 @@ client.once("ready", async () => {
       options: command.options,
     })
   );
-  console.log(data);
   await client.application?.commands.set(data, "615540231159939092");
 });
 
@@ -38,5 +41,4 @@ client.on("interactionCreate", async (interaction) => {
   commands[interaction.commandName].process(interaction);
 });
 
-console.log(process.env.DISCORD_TOKEN);
 client.login(process.env.DISCORD_TOKEN);

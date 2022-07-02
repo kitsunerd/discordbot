@@ -1,76 +1,82 @@
 import dayjs from "dayjs";
-import { ApplicationCommandOptionData, CommandInteraction } from "discord.js";
+import { ChannelManager, CommandInteraction } from "discord.js";
 import { Command } from "../../interfaces/command";
+import { RemindData } from "../../interfaces/reminder";
+import { deleteReminderRepository } from "../../repository/Reminder/delete";
+import { insertReminderRepository } from "../../repository/Reminder/insert";
+import * as subcommands from "./subs";
+import { startReminder } from "./subs/add";
 
-const options: ApplicationCommandOptionData[] = [
-  {
-    type: "NUMBER",
-    name: "hour",
-    description: "何時に通知するか",
-  },
-  {
-    type: "NUMBER",
-    name: "minute",
-    description: "何分に通知するか",
-  },
-  {
-    type: "STRING",
-    name: "message",
-    description: "何を通知するか",
-  },
-];
-
-const validateHour = (hour: number | null): hour is number => {
-  if (!hour) return false;
-  return hour > 0 && hour < 24;
+export type Remind = {
+  remindId: string;
+  channelId: string;
+  userId: string;
+  message: string;
+  // YYYY-MM-DD
+  remindDate: string;
+  rejectFn: (reason?: any) => void;
 };
 
-const validateMinute = (minute: number | null): minute is number => {
-  if (!minute) return false;
-  return minute > 0 && minute < 60;
-};
+const reminds: Record<string, Remind[]> = {};
 
 const process: Command["process"] = (interaction: CommandInteraction) => {
-  const hour = interaction.options.getNumber("hour");
-  const minute = interaction.options.getNumber("minute");
-  const message = interaction.options.getString("message");
-
-  if (!validateHour(hour) || !validateMinute(minute) || message === null) {
-    interaction.reply(`コマンドに渡す値が異常です。
-    [hour]: 0～24までの値を入力してください。
-    [minute]: 0～60までの値を入力してください。
-    [message]: 文字列を入力してください。`);
+  if (!Object.keys(subcommands).includes(interaction.options.getSubcommand()))
     return;
-  }
-
-  const now = dayjs();
-  const settedDate = now.hour(hour).minute(minute).second(0);
-  const remindDate = settedDate.isAfter(now)
-    ? settedDate
-    : settedDate.add(1, "day");
-
-  const mentionMessage = `<@!${interaction.member?.user.id}> ${message}`;
-  remindPromise(interaction, remindDate.diff(now), mentionMessage);
-  interaction.reply(
-    `リマインドを設定しました。${remindDate.format(
-      "HH時mm分"
-    )}に${message}と通知します。`
-  );
-};
-
-const remindPromise = async (
-  interaction: CommandInteraction,
-  msec: number,
-  message: string
-) => {
-  console.log(msec);
-  await new Promise((resolve) => setTimeout(resolve, msec));
-  interaction.channel?.send(message);
+  // @ts-ignore
+  subcommands[interaction.options.getSubcommand()].process(interaction);
 };
 
 export const remind: Command = {
   name: "remind",
   description: "reminder",
   process: process,
-  options: options,
+  options: Object.values(subcommands).map((command) => command.option),
+};
+
+export const getReminds = (userId: string) => reminds[userId] || [];
+
+type AddOptions = {
+  persistence: boolean;
+};
+export const addReminds = (
+  userId: string,
+  added: Remind,
+  options: AddOptions
+) => {
+  const current = getReminds(userId);
+  reminds[userId] = [...current, added];
+  if (!options.persistence) return;
+  // 永続化
+  insertReminderRepository.insert({
+    userId: userId,
+    channelId: added.channelId,
+    remindId: added.remindId,
+    message: added.message,
+    remindDate: added.remindDate,
+  });
+};
+
+export const removeReminds = (userId: string, remindId: string) => {
+  const current = getReminds(userId);
+  reminds[userId] = current.filter((remind) => remind.remindId !== remindId);
+  deleteReminderRepository.deleteById(remindId);
+};
+
+export const importReminder = (
+  remindData: RemindData[],
+  channelManager: ChannelManager
+) => {
+  const now = dayjs();
+  for (const data of remindData) {
+    channelManager.fetch(data.channelId).then((channel) => {
+      if (channel?.type !== "GUILD_TEXT") return;
+      startReminder(channel, {
+        userId: data.userId,
+        remindId: data.remindId,
+        message: data.message,
+        now: now,
+        remindDate: dayjs(data.remindDate),
+      });
+    });
+  }
 };
