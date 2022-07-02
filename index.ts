@@ -19,7 +19,7 @@ const client = new Client({
 client.once("ready", async () => {
   const remindData = fetchReminderRepository.fetch();
   importReminder(remindData, client.channels);
-  // await client.application?.commands.set([], "615540231159939092");
+  await client.application?.commands.set([]);
   const data: ApplicationCommandDataResolvable[] = Object.values(commands).map(
     (command) => ({
       name: command.name,
@@ -27,7 +27,7 @@ client.once("ready", async () => {
       options: command.options,
     })
   );
-  await client.application?.commands.set(data, "615540231159939092");
+  await client.application?.commands.set(data);
 });
 
 client.on("interactionCreate", async (interaction) => {
