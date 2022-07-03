@@ -124,7 +124,9 @@ export const startReminder = (
       sendChannel.send(`<@!${input.userId}> ${input.message}`);
       removeReminds(input.userId, remindId);
     })
-    .catch();
+    .catch((e) => {
+      console.log("ERROR", e);
+    });
 };
 
 export const add: SubCommand = {
