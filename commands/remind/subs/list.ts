@@ -25,15 +25,15 @@ const process: SubCommand["process"] = (interaction) => {
 const formatMessage = (userId: string, reminds: Remind[]) => {
   if (reminds.length === 0) return "リマインド中のメッセージはありません。";
   return `<@!${userId}> のリマインド一覧はコチラです。
-      ===========================
-      [リマインド番号] : [通知時間] : [メッセージ]
-      ${reminds.map(
-        (remind, index) =>
-          `[${index + 1}] : [${dayjs(remind.remindDate).format(
-            `MM月DD日 HH時mm分`
-          )}] : [${remind.message}]`
-      )}
-      `;
+===========================
+[リマインド番号] : [通知時間] : [メッセージ]
+${reminds.map(
+  (remind, index) =>
+    `
+    [${index + 1}] : [${dayjs(remind.remindDate).format(
+      `MM月DD日 HH時mm分`
+    )}] : [${remind.message}]`
+)}`;
 };
 
 export const list: SubCommand = {

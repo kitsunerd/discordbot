@@ -115,6 +115,12 @@ export const startReminder = (
     }, msec);
   })
     .then((remindId) => {
+      console.log(
+        "remind!",
+        `remindId: ${remindId}`,
+        `channel: ${sendChannel?.id}`,
+        `input: ${{ ...input }}`
+      );
       sendChannel.send(`<@!${input.userId}> ${input.message}`);
       removeReminds(input.userId, remindId);
     })
